@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<style>
+body {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  min-height: 100vh;
+}
+div.calculator {
+  background-color: white;
+  padding: 50px;
+  width: 400px;
+  text-align: center;
+  border-radius: 30px;
+}
+label {
+  display: block;
+  text-align: left;
+  font-weight: 900;
+}
+input {
+  display: block;
+  padding: 10px;
+  font-size: 16px;
+  width: 95%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+button {
+  padding: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  color: #fff;
+}
+#add      { background-color: #34aced; }
+#subtract { background-color: blue; }
+#multiply { background-color: #FF008C; }
+#divide   { background-color: #268A04; }
+#clear    { background-color: #764ba2; grid-column: span 2; }
+div#result {
+  margin-top: 25px;
+  padding: 15px;
+  background-color: #cad2f4;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #222;
+  min-height: 30px;
+}
+</style>
+
+</head>
+<body>
+<div class="calculator">
+  <h1>Basic Calculator</h1>
+  <label for="num1">First Number</label>
+  <input type="number" id="num1" placeholder="Enter first number">
+  <label for="num2">Second Number</label>
+  <input type="number" id="num2" placeholder="Enter second number">
+  <div class="buttons">
+    <button id="add" onclick="add()">Add</button>
+    <button id="subtract" onclick="subtract()">Subtract</button>
+    <button id="multiply" onclick="multiply()">Multiply</button>
+    <button id="divide" onclick="divide()">Divide</button>
+    <button id="clear" onclick="clearAll()">Clear</button>
+  </div>
+  <div id="result"></div>
+</div>
+<script>
+function add() {
+  var num1 = Number(document.getElementById("num1").value);
+  var num2 = Number(document.getElementById("num2").value);
+  var num3 = num1 + num2;
+  document.getElementById("result").innerHTML = "The addition of two numbers is: " + num3;
+}
+function subtract() {
+  var num1 = Number(document.getElementById("num1").value);
+  var num2 = Number(document.getElementById("num2").value);
+  var num3 = num1 - num2;
+  document.getElementById("result").innerHTML = "The subtraction of two numbers is: " + num3;
+}
+function multiply() {
+  var num1 = Number(document.getElementById("num1").value);
+  var num2 = Number(document.getElementById("num2").value);
+  var num3 = num1 * num2;
+  document.getElementById("result").innerHTML = "The multiplication of two numbers is: " + num3;
+}
+function divide() {
+  var num1 = Number(document.getElementById("num1").value);
+  var num2 = Number(document.getElementById("num2").value);
+  if (num2 === 0) {
+    document.getElementById("result").innerHTML = "Cannot divide by zero.";
+    return;
+  }
+  var num3 = num1 / num2;
+  document.getElementById("result").innerHTML = "The division of two numbers is: " + num3;
+}
+function clearAll() {
+  document.getElementById("num1").value = "";
+  document.getElementById("num2").value = "";
+  document.getElementById("result").innerHTML = "The output will be shown here";
+}
+</script>
+</body>
+</html>

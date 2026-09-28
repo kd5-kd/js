@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dynamic To-Do List</title>
+<style>
+:root {
+  /* Light / white theme */
+  --page-bg: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --done: #22c55e;
+  --danger: #ef4444;
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+button { border: none; cursor: pointer; font-family: inherit; }
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+  background: var(--page-bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
+}
+.container {
+  width: 100%;
+  max-width: 520px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.35);
+}
+.header h1 { font-size: 1.5rem; line-height: 1.2; }
+.header p { color: var(--muted); font-size: 0.85rem; }
+
+/* Input row */
+.input-row { display: flex; gap: 10px; margin-bottom: 20px; }
+#taskInput {
+  flex: 1;
+  padding: 14px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+#taskInput::placeholder { color: #9ca3af; }
+#taskInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+.add-btn {
+  padding: 0 22px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.add-btn:hover { background: var(--accent-hover); }
+
+/* Task list */
+ul#taskList { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+li.task {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.2s, transform 0.1s;
+}
+li.task:hover { border-color: var(--border-strong); }
+li.task:active { transform: scale(0.995); }
+
+/* Status toggler with tick mark */
+.status {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #fff;
+  border: 2px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.status[data-status="completed"] {
+  border-color: var(--done);
+  background: var(--done);
+}
+.status[data-status="completed"]::after { content: "✓"; }
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  line-height: 1;
+  transition: background 0.2s, color 0.2s;
+}
+.delete-btn:hover { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+.task-text { flex: 1; font-size: 1rem; word-break: break-word; color: var(--text); }
+.task[data-status="completed"] .task-text {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 24px 0;
+}
+
+/* Counter */
+.footer {
+  margin-top: 22px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">✓</div>
+    <div>
+      <h1>My To-Do List</h1>
+      <p>Add, complete &amp; remove your tasks</p>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="input-row">
+    <input type="text" id="taskInput" placeholder="Add a new task…" />
+    <button class="add-btn" id="addBtn">+ Add</button>
+  </div>
+
+  <!-- Task list -->
+  <ul id="taskList"></ul>
+  <div class="empty" id="emptyState">No tasks yet — add one above!</div>
+
+  <div class="footer" id="counter">0 tasks · 0 completed</div>
+</div>
+
+<script>
+const taskInput = document.getElementById("taskInput");
+const addBtn = document.getElementById("addBtn");
+const taskList = document.getElementById("taskList");
+const counter = document.getElementById("counter");
+const emptyState = document.getElementById("emptyState");
+
+const STATUSES = ["pending", "completed"];
+
+// Add task on button click or Enter key
+function addTask() {
+  const text = taskInput.value.trim();
+  if (text === "") return; // ignore empty input
+
+  const li = document.createElement("li");
+  li.className = "task";
+  li.dataset.status = "pending";
+
+  // Status toggler: Pending <-> Completed (tick mark when done)
+  const status = document.createElement("button");
+  status.className = "status";
+  status.dataset.status = "pending";
+  status.title = "Click to mark complete / incomplete";
+  status.addEventListener("click", function () {
+    const i = STATUSES.indexOf(li.dataset.status);
+    const next = STATUSES[(i + 1) % STATUSES.length];
+    li.dataset.status = next;
+    status.dataset.status = next;
+    updateCounter();
+  });
+
+  // Task text
+  const span = document.createElement("span");
+  span.className = "task-text";
+  span.textContent = text;
+
+  // Delete button
+  const del = document.createElement("button");
+  del.className = "delete-btn";
+  del.textContent = "🗑";
+  del.title = "Remove task";
+  del.addEventListener("click", function () {
+    li.remove();
+    updateCounter();
+  });
+
+  li.appendChild(status);
+  li.appendChild(span);
+  li.appendChild(del);
+  taskList.appendChild(li);
+
+  taskInput.value = "";
+  taskInput.focus();
+  updateCounter();
+}
+
+// Update counter and empty-state visibility
+function updateCounter() {
+  const total = taskList.children.length;
+  const done = taskList.querySelectorAll('li[data-status="completed"]').length;
+  counter.textContent = `${total} task${total !== 1 ? "s" : ""} · ${done} completed`;
+  emptyState.style.display = total === 0 ? "block" : "none";
+}
+
+addBtn.addEventListener("click", addTask);
+taskInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") addTask();
+});
+
+updateCounter(); // initial state
+</script>
+</body>
+</html>

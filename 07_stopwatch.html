@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simple Stopwatch</title>
+<style>
+/* ---------- Basic page styling ---------- */
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;   /* center the stopwatch on the page */
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background: #1e293b;
+}
+.stopwatch {
+  background: #ffffff;
+  padding: 40px 50px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+h1 {
+  margin: 0 0 20px;
+  color: #1e293b;
+}
+
+/* ---------- The time display ---------- */
+#display {
+  font-family: "Courier New", monospace; /* monospace = digits don't jump around */
+  font-size: 48px;
+  font-weight: bold;
+  color: #1e293b;
+  background: #f1f5f9;
+  padding: 15px 25px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+/* ---------- Buttons ---------- */
+button {
+  font-size: 18px;
+  padding: 12px 28px;
+  margin: 0 6px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  transition: opacity 0.2s;
+}
+button:hover:not(:disabled) { opacity: 0.85; }
+button:disabled {
+  opacity: 0.4;            /* greyed-out look when disabled */
+  cursor: not-allowed;
+}
+#startBtn { background: #16a34a; } /* green */
+#stopBtn  { background: #dc2626; } /* red */
+#resetBtn { background: #475569; } /* grey */
+</style>
+</head>
+<body>
+<div class="stopwatch">
+  <h1>⏱ Stopwatch</h1>
+
+  <!-- The time is shown here. JS will update this text. -->
+  <div id="display">00:00:00.00</div>
+
+  <!-- The three control buttons. Stop starts out disabled. -->
+  <button id="startBtn">Start</button>
+  <button id="stopBtn" disabled>Stop</button>
+  <button id="resetBtn">Reset</button>
+</div>
+
+<script>
+// ============================================
+// STEP 1: Get references to the HTML elements
+// ============================================
+const display = document.getElementById("display");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+// ============================================
+// STEP 2: State variables (the stopwatch's memory)
+// ============================================
+let timerId = null;   // ID of the running timer (null = not running)
+let elapsedTime = 0;  // total ms saved from previous run sessions
+let startedAt = 0;    // timestamp of when Start was last pressed
+
+// ============================================
+// STEP 3: Convert milliseconds -> "HH:MM:SS.hh"
+// ============================================
+function formatTime(ms) {
+  const hours = Math.floor(ms / 3600000);              // 1 hour = 3,600,000 ms
+  const minutes = Math.floor((ms % 3600000) / 60000);  // leftover -> minutes
+  const seconds = Math.floor((ms % 60000) / 1000);     // leftover -> seconds
+  const hundredths = Math.floor((ms % 1000) / 10);     // leftover -> hundredths
+
+  // Pad each unit to 2 digits (5 -> "05") and join with ":"
+  return (
+    String(hours).padStart(2, "0") + ":" +
+    String(minutes).padStart(2, "0") + ":" +
+    String(seconds).padStart(2, "0") + "." +
+    String(hundredths).padStart(2, "0")
+  );
+}
+
+// ============================================
+// STEP 4: Update the display on screen
+// ============================================
+function updateDisplay() {
+  // Total time = saved time + time in the current running session
+  let total = elapsedTime;
+  if (timerId !== null) {
+    total += Date.now() - startedAt;
+  }
+  display.textContent = formatTime(total);
+}
+
+// ============================================
+// STEP 5: Start button
+// ============================================
+function startStopwatch() {
+  if (timerId !== null) return;            // already running? do nothing
+  startedAt = Date.now();                  // remember when we started
+  timerId = setInterval(updateDisplay, 10); // refresh screen every 10 ms
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+}
+
+// ============================================
+// STEP 6: Stop button (pause)
+// ============================================
+function stopStopwatch() {
+  if (timerId === null) return;            // not running? do nothing
+  elapsedTime += Date.now() - startedAt;   // save ("bank") this session's time
+  clearInterval(timerId);                  // stop the repeating timer
+  timerId = null;
+  updateDisplay();                         // final repaint at exact stop moment
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+}
+
+// ============================================
+// STEP 7: Reset button
+// ============================================
+function resetStopwatch() {
+  clearInterval(timerId);                  // works even if already stopped
+  timerId = null;
+  elapsedTime = 0;
+  startedAt = 0;
+  updateDisplay();                         // shows 00:00:00.00 again
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+}
+
+// ============================================
+// STEP 8: Connect buttons to functions
+// ============================================
+startBtn.addEventListener("click", startStopwatch);
+stopBtn.addEventListener("click", stopStopwatch);
+resetBtn.addEventListener("click", resetStopwatch);
+</script>
+</body>
+</html>
